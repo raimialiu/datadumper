@@ -1,6 +1,6 @@
 import { IServiceCollection } from "./IServiceCollection";
 
 export interface IStartup {
-    ConfigureServices(services: IServiceCollection): void
+    ConfigureServices(services: IServiceCollection): Promise<void>
     get Services(): IServiceCollection
 }

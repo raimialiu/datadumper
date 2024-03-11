@@ -7,7 +7,8 @@ export interface IHostBuilder {
     CreateHostBuilder(config?: ProgramConfig, envFilePath?: string): IHostBuilder
     Build(): IHost
     ConfigureWebHostDefaults<T>(startupClass:IStartup): IHostBuilder
-    CreateFastApp(): IHostBuilder
+    CreateFastApp(config?: ProgramConfig, envFilePath?: string): IHostBuilder
+    HostConfiguration(envFilePath?: string): IHostBuilder
 
     get currentApp(): FastifyInstance
 }

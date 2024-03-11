@@ -8,7 +8,7 @@ export class RedisService {
     constructor(private config: RedisConfig, private redis?: Redis) {
         const {RD_HOST: host, 
             RD_PASS, RD_USER,
-                RD_POR: port, RD_DB} = config
+                RD_POR: port, RD_DB} = this.config
 
 
        redis = redis || new Redis(port as number, host, {

@@ -5,6 +5,8 @@ import { IRouteBuilder } from "./RouteBuilder";
 import { IHostBuilder } from "./IHostBuilder";
 import { DBConfigOptions, ProgramConfig, RedisConfig } from "./common/interface/program.config.interface";
 import { RedisService } from "./services/redis/redis.service";
+import { DatabaseService } from "./services/database/database.service";
+import { decorate } from "./common/helper";
 
 export class ServiceCollectionImplementation implements IServiceCollection {
 
@@ -12,24 +14,32 @@ export class ServiceCollectionImplementation implements IServiceCollection {
      *
      */
     constructor(private hostBuilder: IHostBuilder) {
-        if(!this.hostBuilder.currentApp) {
+        if (!this.hostBuilder.currentApp) {
             Panic(ErrorMessages.APP_NOT_INITIALIZED)
         }
     }
 
-   // private fastApp: FastifyInstance
+    // private fastApp: FastifyInstance
 
     AddTransient<TI, TFunc>(): IServiceCollection {
         throw new Error("Method not implemented.");
     }
 
     AddDatabase(config?: DBConfigOptions): IServiceCollection {
-        throw new Error("Method not implemented.");
+
+        config = config || ((this.hostBuilder.currentApp as any)['programConfig'] as ProgramConfig)?.DB_CONFIG
+        //this.hostBuilder.currentApp.decorate('db', new DatabaseService(config))
+        decorate<DatabaseService>(this.hostBuilder.currentApp, 'redis', new DatabaseService(config))
+
+        return this;
     }
 
     AddRedis(config?: RedisConfig): IServiceCollection {
-        config = config || (this.hostBuilder.currentApp['programConfig'] as ProgramConfig)?.REDIS
-        this.hostBuilder.currentApp.decorate('redis', new RedisService(config))
+        config = config || ((this.hostBuilder.currentApp as any)['programConfig'] as ProgramConfig)?.REDIS
+        console.log({redisConfig: config})
+
+        decorate<RedisService>(this.hostBuilder.currentApp, 'redis', new RedisService(config))
+       // this.hostBuilder.currentApp.decorate('redis', new RedisService(config))
 
         return this;
     }
@@ -43,7 +53,9 @@ export class ServiceCollectionImplementation implements IServiceCollection {
     }
 
     AddJwtAuthentication(): IServiceCollection {
-        throw new Error("Method not implemented.");
+        // throw new Error("Method not implemented.");
+
+        return this;
     }
 
     AddServiceConfigration<T>(config: T): IServiceCollection {
@@ -52,6 +64,7 @@ export class ServiceCollectionImplementation implements IServiceCollection {
 
 
     AddRoutes(routeBuilder: IRouteBuilder): IServiceCollection {
+        console.log({ routeBuilder })
         routeBuilder.Build()
         return this
     }
@@ -60,6 +73,6 @@ export class ServiceCollectionImplementation implements IServiceCollection {
         return new ServiceCollectionImplementation(hostBuilder)
     }
 
-    get currentApp() { return this.hostBuilder.currentApp;}
+    get currentApp() { return this.hostBuilder.currentApp; }
 
 }

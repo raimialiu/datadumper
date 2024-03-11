@@ -12,39 +12,50 @@ export interface IRouteBuilder {
 
 
 export class RouteBuilder implements IRouteBuilder {
-    constructor(private hostBuilder: FastifyInstance) {}
+    constructor(private hostBuilder: FastifyInstance) { }
 
-    private routeConfigs: IRouteBuilderConfig = {
-        path: {
-            method: "",
-            handler: undefined
-        }
-    }
+    private routeConfigs: any = {}
 
     public Build() {
-        if(!this.routeConfigs || Object.keys(this.routeConfigs).length > 0) {
-            Panic(ErrorMessages.ROUTE_CONFIG_NOT_DEFINED)
-        }
+        // if(!this.routeConfigs || Object.keys(this.routeConfigs).length > 0) {
+        //     Panic(ErrorMessages.ROUTE_CONFIG_NOT_DEFINED)
+        // }
 
-        Object.keys(this.routeConfigs).forEach((v)=>{
-            console.log(`constructing url route for ${v}: this.routeConfigs[v]`)
-            const { method, handler, options} = this.routeConfigs[v]
+        console.log({ routeConfigs: this.routeConfigs })
+
+        Object.keys(this.routeConfigs).forEach((v: any) => {
+
+            console.log(`constructing url route for ${v}: ${this.routeConfigs[v]}`)
+            const { method, handler, options } = (this.routeConfigs as any)[v] as any;
+
             //this.fastApp.get()
-            this.hostBuilder[(method+'').toLowerCase()](v, options, handler)
+            console.log({ method, v });
+
+            this.hostBuilder.route({
+                method,
+                url: v,
+                handler,
+                schema: options?.schema
+            })
         })
     }
 
     public Add(path: string, method: string, handler: RouteHandlerMethod, options?: RouteShorthandOptions): RouteBuilder {
-        if(this.routeConfigs[path]) {
+        if ((this.routeConfigs as any)[path]) {
             Panic(`${path} already defined`)
         }
 
+
+
+
         this.routeConfigs[path] = {
+            path,
             method,
-            options,
-            handler
+            handler,
+            options
         }
-       // this.fastApp.get('/')
+
+        console.log({currentConfig: this.routeConfigs})
 
         return this;
     }

@@ -23,6 +23,8 @@ export interface DBConfigOptions {
     DB_URL?: string
     DB_USER?: string
     DB_PORT?: number
+    DB_NAME: string
+    DB_SYNC?: boolean
 }
 
 export interface LoggerConfig {
@@ -85,6 +87,8 @@ export interface DefaultConfig {
     CURRENT: "",
     Swagger: "",
     CQRS: "",
+    DB_NAME:"",
+    DB_SYNC: false,
     JWT: "",
     AUTHENTICATION_SCHEMS: AUTHENTICATION_SCHEMES,
     AUTHENTICATION_PROVIDER: AUTHENTICATION_PROVIDER,

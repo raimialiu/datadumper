@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+       "lib": [
+          "es5",
+          "es6"
+       ],
+       "noImplicitAny": true,
+       "target": "es2020",
+       "module": "commonjs",
+       "moduleResolution": "node",
+       "outDir": "./src",
+       "emitDecoratorMetadata": true,
+       "experimentalDecorators": true,
+       "sourceMap": false,
+       "esModuleInterop": true,
+       "forceConsistentCasingInFileNames": false
+    }
+  }

@@ -5,10 +5,12 @@ import { AUTHENTICATION_PROVIDER, AUTHENTICATION_SCHEMES, DB_DIALECT, LOG_PROVID
 import { DefaultConfig, ProgramConfig } from "./common/interface/program.config.interface";
 import { IStartup } from './IStartup';
 import { IServiceCollection } from "./IServiceCollection";
-import Fastify, { FastifyInstance } from "fastify";
+import Fastify, { FastifyBaseLogger, FastifyInstance, FastifyTypeProviderDefault, RawServerDefault } from "fastify";
 import { ErrorMessages, Panic } from "./common/constant";
 import { ServiceCollectionImplementation } from "./ServiceCollectionImpl";
 import { Host } from "./Host";
+import { IncomingMessage, ServerResponse } from "http";
+import { decorate } from "./common/helper";
 
 export class HostBuilder implements IHostBuilder {
 
@@ -18,6 +20,9 @@ export class HostBuilder implements IHostBuilder {
     constructor() {
         //this.programConfig = config as ProgramConfig
     }
+    get currentApp(): FastifyInstance<RawServerDefault, IncomingMessage, ServerResponse<IncomingMessage>, FastifyBaseLogger, FastifyTypeProviderDefault> {
+        return this.fast
+    }
 
     private services: IServiceCollection
     private fast: FastifyInstance
@@ -25,7 +30,8 @@ export class HostBuilder implements IHostBuilder {
         APP_NAME: "",
         PORT: 0,
         DB_CONFIG: {
-            DIALECT: DB_DIALECT.MYSQL
+            DIALECT: DB_DIALECT.MYSQL,
+            DB_NAME: ""
         },
         REDIS: {
             RD_HOST: "",
@@ -40,12 +46,16 @@ export class HostBuilder implements IHostBuilder {
     }
 
     ConfigureWebHostDefaults<T>(startupClass: IStartup): IHostBuilder {
-        if(!this.fast) {
+        if (!this.fast) {
             Panic(ErrorMessages.APP_NOT_INITIALIZED)
         }
 
-        startupClass.ConfigureServices(ServiceCollectionImplementation.CreateDefaultInstance(this.fast))
-        this.services = startupClass.Services
+        startupClass.ConfigureServices(ServiceCollectionImplementation.CreateDefaultInstance(this))
+            .then(er => {
+                this.services = startupClass.Services
+                this.fast.decorate('services', startupClass.Services)
+            }).catch(console.log)
+
 
         return this;
     }
@@ -72,6 +82,8 @@ export class HostBuilder implements IHostBuilder {
         RD_USER: "",
         RD_POR: 0,
         AVAILABLE_PROVIDER: [],
+        DB_NAME: "",
+        DB_SYNC: false,
         CURRENT: "",
         Swagger: "",
         CQRS: "",
@@ -82,11 +94,11 @@ export class HostBuilder implements IHostBuilder {
     }
 
     CreateHostBuilder(config?: ProgramConfig, envFilePath?: string): IHostBuilder {
-       this
-        .HostConfiguration(config, envFilePath)
-        .CreateFastApp();
+        this.CreateFastApp(config, envFilePath)
+            .HostConfiguration(envFilePath)
 
-       return this;
+
+        return this;
     }
 
     static Instance(): IHostBuilder {
@@ -98,84 +110,91 @@ export class HostBuilder implements IHostBuilder {
         return new Host(this)
     }
 
-    private HostConfigFunc(configOptions?: ProgramConfig, envFilePath?: string) {
-        if (!this.HostConfigArgs) {
-            Panic("configuration metadata missing....")
+    private HostConfigFunc(configOptions: any, envFilePath?: string) {
+        if (!configOptions || !this.fast) {
+            Panic("configuration metadata missing or service not properly initialized....")
         }
 
-        if (configOptions) {
-            this.programConfig = configOptions
-        }
-        else {
-            const { APP_NAME, HOST_ADDRESS,
-                DB_URL, DB_USER, RD_USER, RD_HOST,
-                RD_PASS, RD_POR, DIALECT, PORT,
-                AVAILABLE_PROVIDER,
+        const { APP_NAME, HOST_ADDRESS,
+            DB_URL, DB_USER, RD_USER, RD_HOST,
+            RD_PASS, RD_POR, DIALECT, PORT,
+            AVAILABLE_PROVIDER,
+            CURRENT,
+            CLOUDWATCH_CONFIG,
+            AUTHENTICATION_PROVIDER,
+            AUTHENTICATION_SCHEMS,
+            LOG_CHANNELS, Swagger, CQRS, JWT, FILEPATH, PROVIDER,
+            DB_HOST, DB_PASS, DB_PORT, CONNECTION_TIMEOUT, DB_NAME, DB_SYNC } = configOptions
+
+        const config: ProgramConfig = {
+            ENV_FILE_PATH: envFilePath,
+            CONNECTION_TIMEOUT,
+            APP_NAME,
+            PORT,
+            AUTHENTICATION_PROVIDER,
+            AUTHENTICATION_SCHEMS,
+            HOST_ADDRESS,
+            PROVIDER: {
                 CURRENT,
+                AVAILABLE_PROVIDER
+            },
+            LOGGER: {
+                LOG_CHANNELS,
                 CLOUDWATCH_CONFIG,
-                AUTHENTICATION_PROVIDER,
-                AUTHENTICATION_SCHEMS,
-                LOG_CHANNELS, Swagger, CQRS, JWT, FILEPATH, PROVIDER,
-                DB_HOST, DB_PASS, DB_PORT,CONNECTION_TIMEOUT } = this.HostConfigArgs
-
-            const config: ProgramConfig = {
-                ENV_FILE_PATH: envFilePath,
-                CONNECTION_TIMEOUT,
-                APP_NAME,
-                PORT,
-                AUTHENTICATION_PROVIDER,
-                AUTHENTICATION_SCHEMS,
-                HOST_ADDRESS,
-                PROVIDER: {
-                    CURRENT,
-                    AVAILABLE_PROVIDER
-                },
-                LOGGER: {
-                    LOG_CHANNELS,
-                    CLOUDWATCH_CONFIG,
-                    PROVIDER
-                },
-                DB_CONFIG: {
-                    DB_HOST, DB_PASS, DB_URL, DB_USER,
-                    DB_PORT,
-                    DIALECT
-                },
-                REDIS: {
-                    RD_HOST, RD_USER, RD_PASS, RD_POR
-                }
-
+                PROVIDER
+            },
+            DB_CONFIG: {
+                DB_HOST, DB_PASS, DB_URL, DB_USER,
+                DB_PORT,
+                DIALECT,
+                DB_NAME, DB_SYNC: process.env.NODE_ENV =='development' ? true: false
+            },
+            REDIS: {
+                RD_HOST, RD_USER, RD_PASS, RD_POR
             }
 
-            this.programConfig = config
         }
 
+        this.programConfig = config
+
+        this.fast.decorate('programConfig', config)
     }
 
-    public CreateFastApp(): IHostBuilder {
-        if(!this.programConfig) {
-            Panic(ErrorMessages.CONFIGURATION_OPTION_MISSING)
-        }
-
-        const {
-            CONNECTION_TIMEOUT
-        } = this.programConfig
-
+    public CreateFastApp(config?: ProgramConfig, envFilePath?: string): IHostBuilder {
         const fastApp = Fastify({
-            "connectionTimeout": CONNECTION_TIMEOUT
+            "connectionTimeout": 5000
         })
 
-        fastApp.decorate('programConfig', this.programConfig)
+        if (config) {
+            fastApp.decorate('programConfig', config)
+        }
+        else {
+            this.HostConfigArgs = EnvLoader.Load(fastApp, envFilePath)
+        }
+
         this.fast = fastApp
 
         return this
     }
 
-    private HostConfiguration(config?: ProgramConfig, envFilePath?: string): IHostBuilder {
-        if (!config) {
-            this.HostConfigArgs = EnvLoader.Load(this.HostConfigArgs, envFilePath)
-        }
+    public HostConfiguration(envFilePath?: string): IHostBuilder {
+        let envConfig = (this.fast as any)['envConfig']
+        let programConfig = (this.fast as any)['programConfig']
+        console.log({ envConfig, programConfig })
 
-        this.HostConfigFunc(config, envFilePath)
+        if (programConfig) {
+            return this
+        }
+        else {
+            if (!envConfig) {
+                envConfig = EnvLoader.Load(this.fast, envFilePath)
+
+                this.HostConfigFunc(envConfig, envFilePath)
+            }
+            else {
+                this.HostConfigFunc(envConfig, envFilePath)
+            }
+        }
 
         return this
     }
