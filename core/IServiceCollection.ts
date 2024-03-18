@@ -12,6 +12,7 @@ export interface IServiceCollection {
     AddJwtAuthentication(): IServiceCollection
     AddServiceConfigration<T>(config?:T): IServiceCollection
     AddRoutes(routeBuilder: IRouteBuilder): IServiceCollection
+    AddFakerServiceProvider(configFilePath: string, currentProvider?: string): IServiceCollection
 
     get currentApp(): FastifyInstance
 

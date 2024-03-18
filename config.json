@@ -1,0 +1,18 @@
+{
+    "faker": {
+        "libName": "faker",
+        "hasConstructor": false,
+        "preceeded": true,
+        "preceededKey": "@",
+        "valueisFunc": true,
+        "namespace": "faker-js",
+        "mainObj": "faker",
+        "constructorArgs": {}
+    },
+    "casual": {
+        "libName": "casual",
+        "hasConstructor": true,
+        "valueisFunc": false,
+        "constructorArgs": {}
+    }
+}

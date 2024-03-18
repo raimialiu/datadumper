@@ -1,8 +1,7 @@
-import { faker } from '@faker-js/faker'
 import { Panic } from '../../common/constant'
 
 
-export class Generator {
+export class GeneratorService {
     constructor(payload: {
         libName: string,
         namespace?: string,
@@ -15,14 +14,14 @@ export class Generator {
     }) {
 
         const schema = new SchemaFuncImpl(payload)
-        console.log({ schema })
+       // console.log({ schema })
         this.schema = schema.getLib()
     }
 
     private schema: SchemaFuncImpl
 
 
-    public generate(payload: {
+    public __generate(payload: {
         keyName: string,
         properties: any,
         category?: string,
@@ -40,6 +39,99 @@ export class Generator {
     }
 
 
+
+    private __getData__(payload: any) {
+
+        const lib: any = this.schema
+
+        let objResult: any = {}
+
+        Object.keys(payload).forEach((v: any) => {
+            // console.log({
+            //     currentItem: v,
+            //     itemValue: payload[v]
+            // })
+            const {
+                isFunc, category, properties, isCamelCase, keyName
+            } = payload[v]
+
+            const randomResult = keyName ? lib[category][keyName] : lib[category][v]
+          //  console.log({ randomResult})
+
+            if (isFunc) {
+                if (properties) {
+                    objResult[v] = randomResult(properties)
+                }
+                else {
+                    objResult[v] = randomResult()
+                }
+            }
+
+            if (!isFunc) {
+                if (properties) {
+                    objResult[v] = randomResult[properties]
+                }
+                else {
+                    objResult[v] = randomResult()
+                }
+            }
+        })
+
+        return objResult
+
+    }
+
+    // deprecated....
+    public async getData(payload: ISchemaGenFactory[]) {
+
+        let schemaTask: any[] = []
+
+        payload.forEach((p) => {
+            const { keyName, properties, category, isFunc } = p
+            schemaTask.push(
+
+                this.__generate({
+                    keyName, properties, category, isFunc
+                })
+            )
+        })
+
+        const results = await Promise.all(schemaTask)
+
+        return results
+
+    }
+
+    public async topN(n: number, schemaPayload: any) {
+        let task: any[] = []
+
+        while (n > 0) {
+
+            task.push(
+                this.__getData__(schemaPayload)
+            )
+            n--
+        }
+
+        const results = await Promise.all(task)
+
+        return results
+
+    }
+
+
+}
+
+export interface GetDataBaseSchema {
+    category: string,
+    properties: ISchemaGenFactory
+}
+
+export interface ISchemaGenFactory {
+    keyName: string,
+    properties: any,
+    category?: string,
+    isFunc?: boolean
 }
 
 export class SchemaFuncImpl implements SchemaFunc {

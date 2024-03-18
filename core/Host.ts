@@ -12,7 +12,7 @@ export class Host implements IHost {
     constructor(private hostBuilder: IHostBuilder) {
     }
 
-    private wrapApp(newInstance: FastifyInstance, oldInstance: FastifyInstance, properties: any) {
+    private wrapApp(newInstance: FastifyInstance, properties: any) {
 
         Object.keys(properties).forEach((item: string) => {
             const { key, options, value } = properties[item]
@@ -33,7 +33,11 @@ export class Host implements IHost {
         })
         const app = hostObject?.fast as any
 
-        this.wrapApp(appFast, app, {
+        this.wrapApp(appFast, {
+            providerConfig: {
+                key: 'providerConfig',
+                value: app['providerConfig']
+            },
             programConfig: {
                 key: 'programConfig',
                 value: app['programConfig']

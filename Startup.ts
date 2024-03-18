@@ -23,6 +23,7 @@ export class Startup implements IStartup {
             .AddRedis(config?.REDIS)
             .AddDatabase()
             .AddJwtAuthentication()
+            .AddFakerServiceProvider('../config.json', process.env.CURRENT_PROVIDER || 'faker')
 
         this._svc = services
     }

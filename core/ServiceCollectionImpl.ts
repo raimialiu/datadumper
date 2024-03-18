@@ -7,6 +7,8 @@ import { DBConfigOptions, ProgramConfig, RedisConfig } from "./common/interface/
 import { RedisService } from "./services/redis/redis.service";
 import { DatabaseService } from "./services/database/database.service";
 import { decorate } from "./common/helper";
+import { join } from "path";
+import { readFileSync } from "fs";
 
 export class ServiceCollectionImplementation implements IServiceCollection {
 
@@ -17,6 +19,24 @@ export class ServiceCollectionImplementation implements IServiceCollection {
         if (!this.hostBuilder.currentApp) {
             Panic(ErrorMessages.APP_NOT_INITIALIZED)
         }
+    }
+
+    AddFakerServiceProvider(configFilePath: string, currentProvider?: string): IServiceCollection {
+        const configPath = join(__dirname, configFilePath)
+
+        const fileContent = Buffer.from(readFileSync(configPath)).toString()
+        const fileJsonParse = JSON.parse(fileContent)
+
+        console.log({ fileJsonParse })
+
+        const providerConfig = fileJsonParse[currentProvider]
+        console.log({ providerConfig })
+
+        if(providerConfig) {
+            this.hostBuilder.currentApp.decorate('providerConfig', providerConfig)
+        }
+
+        return this
     }
 
     // private fastApp: FastifyInstance
@@ -36,10 +56,10 @@ export class ServiceCollectionImplementation implements IServiceCollection {
 
     AddRedis(config?: RedisConfig): IServiceCollection {
         config = config || ((this.hostBuilder.currentApp as any)['programConfig'] as ProgramConfig)?.REDIS
-        console.log({redisConfig: config})
+        console.log({ redisConfig: config })
 
         decorate<RedisService>(this.hostBuilder.currentApp, 'redis', new RedisService(config))
-       // this.hostBuilder.currentApp.decorate('redis', new RedisService(config))
+        // this.hostBuilder.currentApp.decorate('redis', new RedisService(config))
 
         return this;
     }
