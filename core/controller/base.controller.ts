@@ -1,21 +1,33 @@
+import { FastifyReply } from "fastify"
+
 export class BaseController {
 
-    public success<T>(data: T, message: string = "OK", statusCode: number = 200) {
-        return {
+    protected success<T>(resp: FastifyReply, data: T, message: string = "OK", statusCode: number = 200) {
+        return resp.send({
             data,
             message,
             statusCode,
             status: /^2/.test(statusCode.toString())
-        }
+        })
     }
 
-    public failedResponse(errors: any, message: string = "REQUEST FAILED", 
+    protected failedResponse(resp: FastifyReply, errors: any, message: string = "REQUEST FAILED",
         statusCode: number = 400) {
-        return {
-            errors,
-            message,
-            statusCode,
-            status: false
-        }
+        return resp.send(
+            {
+                errors,
+                message,
+                statusCode,
+                status: false
+            }
+        )
+
+    }
+
+    protected handleError(resp: FastifyReply, error: Error) {
+        const errorMessage = error?.message
+
+        return this.failedResponse(resp, [errorMessage])
+
     }
 }

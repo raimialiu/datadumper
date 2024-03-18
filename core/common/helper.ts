@@ -1,8 +1,11 @@
 import { IRouteBuilder, RouteBuilder } from "../RouteBuilder";
 import { FastifyInstance } from "fastify";
+import { SchemaController } from "../controller/schema/schema.controller";
+import { MockerService } from "../services/mocker/mocker.service";
 
 export function BuildeRoutes(builder: FastifyInstance): IRouteBuilder {
     const routeBuilder = new RouteBuilder(builder)
+    const shemaController = new SchemaController(new MockerService(builder))
     //console.log({routeBuilder})
 
     routeBuilder.Add('/ping', 'get', async (request, reply) => {
@@ -11,6 +14,11 @@ export function BuildeRoutes(builder: FastifyInstance): IRouteBuilder {
 
     routeBuilder.Add('/', 'get', (req, reply) => {
         reply.send(`Welcome to ${this.fastApp['programConfig']?.APP_NAME}`)
+    })
+
+
+    routeBuilder.Add('/data/get', 'post', async (req, reply) => {
+        return await shemaController.getData(req, reply)
     })
 
     return routeBuilder
