@@ -17,6 +17,7 @@ export class MockerService {
         const { n, schemas } = payload
 
         const mockData = await this.genSvc.topN(n, schemas)
+        console.log({mockData})
 
         return mockData
     }

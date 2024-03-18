@@ -1,4 +1,3 @@
-import { FastifyInstance } from "fastify";
 import { IServiceCollection } from "./IServiceCollection";
 import { ErrorMessages, Panic } from "./common/constant";
 import { IRouteBuilder } from "./RouteBuilder";
@@ -23,6 +22,7 @@ export class ServiceCollectionImplementation implements IServiceCollection {
 
     AddFakerServiceProvider(configFilePath: string, currentProvider?: string): IServiceCollection {
         const configPath = join(__dirname, configFilePath)
+        console.log({configFilePath, configPath})
 
         const fileContent = Buffer.from(readFileSync(configPath)).toString()
         const fileJsonParse = JSON.parse(fileContent)
@@ -32,7 +32,7 @@ export class ServiceCollectionImplementation implements IServiceCollection {
         const providerConfig = fileJsonParse[currentProvider]
         console.log({ providerConfig })
 
-        if(providerConfig) {
+        if (providerConfig) {
             this.hostBuilder.currentApp.decorate('providerConfig', providerConfig)
         }
 

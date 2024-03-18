@@ -14,7 +14,7 @@ export class GeneratorService {
     }) {
 
         const schema = new SchemaFuncImpl(payload)
-       // console.log({ schema })
+        // console.log({ schema })
         this.schema = schema.getLib()
     }
 
@@ -56,7 +56,7 @@ export class GeneratorService {
             } = payload[v]
 
             const randomResult = keyName ? lib[category][keyName] : lib[category][v]
-          //  console.log({ randomResult})
+            //  console.log({ randomResult})
 
             if (isFunc) {
                 if (properties) {
@@ -76,6 +76,8 @@ export class GeneratorService {
                 }
             }
         })
+
+        console.log({objResult})
 
         return objResult
 
