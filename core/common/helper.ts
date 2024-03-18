@@ -5,7 +5,11 @@ export function BuildeRoutes(builder: FastifyInstance): IRouteBuilder {
     const routeBuilder = new RouteBuilder(builder)
     //console.log({routeBuilder})
 
-    routeBuilder.Add('/', 'get', (req, reply)=>{
+    routeBuilder.Add('/ping', 'get', async (request, reply) => {
+        return { pong: 'it worked!' }
+    })
+
+    routeBuilder.Add('/', 'get', (req, reply) => {
         reply.send(`Welcome to ${this.fastApp['programConfig']?.APP_NAME}`)
     })
 
@@ -17,11 +21,11 @@ export function decorate<T>(builder: FastifyInstance, key: string, value: T, opt
 
     //builder.register(fp(()))
 
-    builder.register(fp((fst: FastifyInstance, opts: any, done: ()=>void)=>{
+    builder.register(fp((fst: FastifyInstance, opts: any, done: () => void) => {
         fst.decorate(key, value as any)
 
         done()
-    })).then(res=>{
+    })).then(res => {
         console.log(`${key} registration completed`)
     })
 

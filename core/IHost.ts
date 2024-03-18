@@ -1,6 +1,6 @@
 export interface IHost {
-    RunAsync(): Promise<IHostBuildResult>
-    //StartAsync(): Promise<IHostBuildResult>
+    
+    Start(): void
     StopAsync(): IHost
     WaitForShutDown(timeout?: number): void
 }

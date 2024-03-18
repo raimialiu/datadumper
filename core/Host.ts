@@ -1,8 +1,9 @@
-import { FastifyInstance } from "fastify";
+import Fastify, { FastifyInstance, RouteShorthandOptions } from "fastify";
 import { HostBuilder } from "./HostBuilder";
 import { IHost, IHostBuildResult } from "./IHost";
 import { IHostBuilder } from "./IHostBuilder";
 import { ProgramConfig } from "./common/interface/program.config.interface";
+import { BuildeRoutes } from "./common/helper";
 
 export class Host implements IHost {
     /**
@@ -11,64 +12,73 @@ export class Host implements IHost {
     constructor(private hostBuilder: IHostBuilder) {
     }
 
-    RunAsync(): Promise<IHostBuildResult> {
+    private wrapApp(newInstance: FastifyInstance, oldInstance: FastifyInstance, properties: any) {
 
-        return new Promise(async (resolve, reject) => {
-            try {
-                const startResponse = await this.StartAsync()
+        Object.keys(properties).forEach((item: string) => {
+            const { key, options, value } = properties[item]
+            newInstance.decorate(key, value)
+        })
+    }
 
-                console.log({ startResponse })
+    public Start(): void {
+        console.log(`starting application....`,)
+        const config = (this.hostBuilder.currentApp as any)['programConfig'] as ProgramConfig
 
-                return resolve(startResponse)
-            }
-            catch (er) {
-                return reject({
-                    PORT: 0,
-                    HOST: null,
-                    Message: `an error occured: ${er}`,
-                    Success: false,
-                    Error: er
-                })
+        const { PORT } = config
+
+        const hostObject = this.hostBuilder as any
+        const appFast = Fastify({
+            "connectionTimeout": 5000,
+            logger: true
+        })
+        const app = hostObject?.fast as any
+
+        this.wrapApp(appFast, app, {
+            programConfig: {
+                key: 'programConfig',
+                value: app['programConfig']
+            },
+            redis: {
+                key: 'redis',
+                value: app['redis']
+            },
+            db: {
+                key: 'db',
+                value: app['db']
             }
         })
 
-    }
+        BuildeRoutes(appFast).Build()
 
-    private async StartAsync(): Promise<IHostBuildResult> {
-        console.log(`starting application....`, {builder: this.hostBuilder})
-        const config = (this.hostBuilder.currentApp as any)['programConfig'] as ProgramConfig
+        const start = async (portNumber: number, hostAddress?: string) => {
+            try {
+                await appFast.listen({ port: portNumber, host: hostAddress || '0.0.0.0' })
+                    .then(res => {
+                        //const address = app.server.address()
 
-        const { PORT, HOST_ADDRESS } = config
+                        console.log(`app start information....`, { res, portNumber })
+                    })
+                    .catch(console.log)
 
-        const hostObject = this.hostBuilder as any
-        const app = hostObject?.fast as FastifyInstance
-        console.log({configurator: config})
-
-        await app?.listen({
-            port: parseInt(PORT.toString())
-        }).then(appStartResponse=>{
-            console.log({appStartResponse})
-        }).catch(console.log)
-
-        return {
-            APP_NAME: config.APP_NAME,
-            PORT,
-            HOST: HOST_ADDRESS,
-            Message: `app listening on ${PORT}`,
-            Success: true
+            } catch (err) {
+                appFast.log.error(err)
+                process.exit(1)
+            }
         }
+
+        start(parseInt(PORT.toString()))
     }
 
     StopAsync(): IHost {
-       this.WaitForShutDown(5)
-       return this;
+        this.WaitForShutDown(5)
+        return this;
     }
 
     WaitForShutDown(timeout?: number | undefined): void {
         //throw new Error("Method not implemented.");
-        setTimeout(()=>{
+        setTimeout(() => {
             process.exit(545783487)
-        }, (timeout || 1)* 1000)
+        }, (timeout || 1) * 1000)
     }
 
     static CreateDefaultBuilder(config?: ProgramConfig, envPath?: string): IHostBuilder {

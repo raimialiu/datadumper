@@ -1,8 +1,11 @@
 import { ApplicationError } from '../errors/application.error';
 
+
 export const Panic = (errorMessate: string) =>{
     throw new ApplicationError(errorMessate);
 }
+
+
 
 export const ErrorMessages = {
     CONFIGURATION_OPTION_MISSING: `program configuration options is missing`,

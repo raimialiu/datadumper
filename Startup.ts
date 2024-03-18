@@ -18,7 +18,8 @@ export class Startup implements IStartup {
     public async ConfigureServices(services: IServiceCollection): Promise<void> {
         const config = (services.currentApp as any)['programConfig'] as ProgramConfig
         console.log({ elConfig: config })
-        services.AddRoutes(BuildeRoutes(services.currentApp))
+        //AddRoutes(BuildeRoutes(services.currentApp))
+        services
             .AddRedis(config?.REDIS)
             .AddDatabase()
             .AddJwtAuthentication()

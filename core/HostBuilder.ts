@@ -162,7 +162,8 @@ export class HostBuilder implements IHostBuilder {
 
     public CreateFastApp(config?: ProgramConfig, envFilePath?: string): IHostBuilder {
         const fastApp = Fastify({
-            "connectionTimeout": 5000
+            "connectionTimeout": 5000,
+            logger: true
         })
 
         if (config) {

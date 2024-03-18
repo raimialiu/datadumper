@@ -29,7 +29,7 @@ export class ServiceCollectionImplementation implements IServiceCollection {
 
         config = config || ((this.hostBuilder.currentApp as any)['programConfig'] as ProgramConfig)?.DB_CONFIG
         //this.hostBuilder.currentApp.decorate('db', new DatabaseService(config))
-        decorate<DatabaseService>(this.hostBuilder.currentApp, 'redis', new DatabaseService(config))
+        decorate<DatabaseService>(this.hostBuilder.currentApp, 'db', new DatabaseService(config))
 
         return this;
     }

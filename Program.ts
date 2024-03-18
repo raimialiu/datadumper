@@ -1,8 +1,8 @@
 import { Startup } from "./Startup";
 import { Host } from "./core/Host";
 import { IHostBuilder } from "./core/IHostBuilder";
-import { AUTHENTICATION_PROVIDER, AUTHENTICATION_SCHEMES, DB_DIALECT, FAKER_PROVIDER } from "./core/common/enum";
 import { ProgramConfig } from "./core/common/interface/program.config.interface";
+import Fastify, { FastifyBaseLogger, FastifyInstance, FastifyTypeProviderDefault, RawServerDefault } from "fastify";
 
 export class Program {
 
@@ -11,15 +11,7 @@ export class Program {
         console.log({hostBuildResult: host})
 
         
-        host.RunAsync()
-            .then((res)=>{
-                console.log(`${res.APP_NAME} started on PORT ${res?.PORT}`)   
-
-        }).catch(er=>{
-            console.log({RunProgramError: er})
-            host.WaitForShutDown(5)
-            console.log(`application shutdown....`)
-        })
+        host.Start() // start the application
     }
 
     private static CreateDefaultHostBuilder(config?: ProgramConfig, envPath?: string): IHostBuilder {
@@ -30,7 +22,14 @@ export class Program {
 }
 
 
-Program.Main(undefined, `${__dirname}/.env`) // start application
+ Program.Main(undefined, `${__dirname}/.env`) // start application
+
+// const app = Fastify({
+//     "connectionTimeout": 5000,
+//     logger: true
+// })
+
+//app.listen(3240).then(console.log).catch(console.log)
 
 // {
 //     APP_NAME: process.env.APP_NAME,
