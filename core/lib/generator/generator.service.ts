@@ -14,10 +14,30 @@ export class Generator {
         constructorArgs?: any
     }) {
 
-        this.schema = new SchemaFuncImpl(payload)
+        const schema = new SchemaFuncImpl(payload)
+        console.log({ schema })
+        this.schema = schema.getLib()
     }
 
     private schema: SchemaFuncImpl
+
+
+    public generate(payload: {
+        keyName: string,
+        properties: any,
+        category?: string,
+        isFunc?: boolean
+    }) {
+
+        const { keyName, properties, category, isFunc } = payload
+        const lib: any = this.schema
+
+        const randomResult = properties ? lib[category][keyName](properties) : lib[category][keyName]
+
+
+        return isFunc ? randomResult() : randomResult
+
+    }
 
 
 }
@@ -37,7 +57,7 @@ export class SchemaFuncImpl implements SchemaFunc {
         this.__init__()
     }
 
-    private libSchema: any
+    public libSchema: any
 
     private __init__() {
 
