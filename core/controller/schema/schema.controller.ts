@@ -20,6 +20,7 @@ export class SchemaController extends BaseController {
             return this.success(resp, serviceResponse)
 
         } catch (error) {
+            console.log({getDataEr: error})
 
             return this.handleError(resp, error)
 

@@ -4,7 +4,7 @@
         "hasConstructor": false,
         "preceeded": true,
         "preceededKey": "@",
-        "valueisFunc": true,
+        "valueIsFunc": true,
         "namespace": "faker-js",
         "mainObj": "faker",
         "constructorArgs": {}
@@ -13,6 +13,16 @@
         "libName": "casual",
         "hasConstructor": true,
         "valueisFunc": false,
+        "constructorArgs": {}
+    },
+    "falso": {
+        "libName": "falso",
+        "hasConstructor": false,
+        "preceeded": true,
+        "preceededKey": "@",
+        "valueIsFunc": true,
+        "namespace": "faker-js",
+        "mainObj": "faker",
         "constructorArgs": {}
     }
 }

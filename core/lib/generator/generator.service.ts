@@ -1,21 +1,23 @@
 import { Panic } from '../../common/constant'
+import { IGenerator } from './provider/interface/generator.interface'
 
 
 export class GeneratorService {
-    constructor(payload: {
+    constructor(private payload: {
         libName: string,
         namespace?: string,
         preceeded?: boolean,
         deepRootedMainObject?: boolean
         mainObj?: string,
         preceededKey?: string,
+        valueIsFunc?: boolean
         hasConstructor?: boolean,
         constructorArgs?: any
     }) {
 
-        const schema = new SchemaFuncImpl(payload)
+        const schema = new SchemaFuncImpl(this.payload)
         // console.log({ schema })
-        this.schema = schema.getLib()
+        this.schema = schema//.getLib()
     }
 
     private schema: SchemaFuncImpl
@@ -35,7 +37,6 @@ export class GeneratorService {
 
 
         return isFunc ? randomResult() : randomResult
-
     }
 
 
@@ -77,7 +78,7 @@ export class GeneratorService {
             }
         })
 
-        console.log({objResult})
+        console.log({ objResult })
 
         return objResult
 
@@ -104,21 +105,32 @@ export class GeneratorService {
 
     }
 
+    private getClassFunc() {
+        const libName = this.payload.libName[0].toUpperCase() + this.payload.libName.slice(1)
+
+        const requireKey = libName + 'GeneratorService'
+        const classRequire = require(`./provider/generator.${this.payload.libName}.service`)
+
+        const className = classRequire[requireKey]
+        const classInstance = new className(this.schema)
+
+        console.log({ className, classInstance, requireKey })
+
+        return classInstance as IGenerator
+    }
+
+    private async generateData(n: number, schemaPayload: any) {
+       // schemaPayload[`valueIsFunc`] = this.payload.valueIsFunc
+
+        const classInstance = this.getClassFunc()
+        const data = await classInstance.topN(n, schemaPayload)
+
+        return data
+    }
+
     public async topN(n: number, schemaPayload: any) {
-        let task: any[] = []
 
-        while (n > 0) {
-
-            task.push(
-                this.__getData__(schemaPayload)
-            )
-            n--
-        }
-
-        const results = await Promise.all(task)
-
-        return results
-
+        return await this.generateData(n, schemaPayload)
     }
 
 
@@ -145,6 +157,7 @@ export class SchemaFuncImpl implements SchemaFunc {
         mainObj?: string,
         preceededKey?: string,
         hasConstructor?: boolean,
+        valueIsFunc?: boolean,
         constructorArgs?: any
     }) {
 
@@ -200,6 +213,10 @@ export class SchemaFuncImpl implements SchemaFunc {
 
     runLibFunc() {
         return this.libSchema()
+    }
+
+    get properties() {
+        return this.payload
     }
 
 }

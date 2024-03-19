@@ -39,4 +39,19 @@ export function decorate<T>(builder: FastifyInstance, key: string, value: T, opt
 
 }
 
+export function deleteFromObj(object: any, mutatotrs: any) {
+
+    if (object && mutatotrs && Object.keys(mutatotrs).length > 0) {
+        Object.keys(object).forEach((o) => {
+            if (mutatotrs[o]) {
+                delete object[o]
+            }
+        })
+
+        return object
+    }
+
+    return object
+}
+
 
