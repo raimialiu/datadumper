@@ -54,4 +54,12 @@ export function deleteFromObj(object: any, mutatotrs: any) {
     return object
 }
 
+export function toCamelCase(word: string): string {
+    return word.replace(
+        /(?:^\w|[A-Z]|\b\w|\s+)/g,
+        (match, index) =>
+            index === 0 ? match.toLowerCase() : match.toUpperCase()
+    );
+}
+
 

@@ -21,8 +21,7 @@
         "preceeded": true,
         "preceededKey": "@",
         "valueIsFunc": true,
-        "namespace": "faker-js",
-        "mainObj": "faker",
+        "namespace": "ngneat",
         "constructorArgs": {}
     }
 }
