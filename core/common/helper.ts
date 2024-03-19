@@ -21,6 +21,14 @@ export function BuildeRoutes(builder: FastifyInstance): IRouteBuilder {
         return await shemaController.getData(req, reply)
     })
 
+    routeBuilder.Add('/data/get/download', 'post', async (req, reply) => {
+        return await shemaController.downloadData(req, reply)
+    })
+
+    routeBuilder.Add('/data/download', 'get', async (req, reply) => {
+        return await shemaController.downloadData2(req, reply)
+    })
+
     return routeBuilder
 }
 
