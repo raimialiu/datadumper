@@ -23,88 +23,6 @@ export class GeneratorService {
     private schema: SchemaFuncImpl
 
 
-    public __generate(payload: {
-        keyName: string,
-        properties: any,
-        category?: string,
-        isFunc?: boolean
-    }) {
-
-        const { keyName, properties, category, isFunc } = payload
-        const lib: any = this.schema
-
-        const randomResult = properties ? lib[category][keyName](properties) : lib[category][keyName]
-
-
-        return isFunc ? randomResult() : randomResult
-    }
-
-
-
-    private __getData__(payload: any) {
-
-        const lib: any = this.schema
-
-        let objResult: any = {}
-
-        Object.keys(payload).forEach((v: any) => {
-            // console.log({
-            //     currentItem: v,
-            //     itemValue: payload[v]
-            // })
-            const {
-                isFunc, category, properties, isCamelCase, keyName
-            } = payload[v]
-
-            const randomResult = keyName ? lib[category][keyName] : lib[category][v]
-            //  console.log({ randomResult})
-
-            if (isFunc) {
-                if (properties) {
-                    objResult[v] = randomResult(properties)
-                }
-                else {
-                    objResult[v] = randomResult()
-                }
-            }
-
-            if (!isFunc) {
-                if (properties) {
-                    objResult[v] = randomResult[properties]
-                }
-                else {
-                    objResult[v] = randomResult()
-                }
-            }
-        })
-
-        console.log({ objResult })
-
-        return objResult
-
-    }
-
-    // deprecated....
-    public async getData(payload: ISchemaGenFactory[]) {
-
-        let schemaTask: any[] = []
-
-        payload.forEach((p) => {
-            const { keyName, properties, category, isFunc } = p
-            schemaTask.push(
-
-                this.__generate({
-                    keyName, properties, category, isFunc
-                })
-            )
-        })
-
-        const results = await Promise.all(schemaTask)
-
-        return results
-
-    }
-
     private getClassFunc() {
         const libName = this.payload.libName[0].toUpperCase() + this.payload.libName.slice(1)
 
@@ -120,8 +38,6 @@ export class GeneratorService {
     }
 
     private async generateData(n: number, schemaPayload: any) {
-       // schemaPayload[`valueIsFunc`] = this.payload.valueIsFunc
-
         const classInstance = this.getClassFunc()
         const data = await classInstance.topN(n, schemaPayload)
 

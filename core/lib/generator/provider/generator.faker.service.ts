@@ -1,33 +1,17 @@
 import { deleteFromObj } from "../../../common/helper"
+import { BaseGeneratorService } from "../generator.base.service"
 import { SchemaFuncImpl } from "../generator.service"
 import { IGenerator } from "./interface/generator.interface"
 
-export class FakerGeneratorService implements IGenerator {
+export class FakerGeneratorService extends BaseGeneratorService implements IGenerator {
     constructor(private schema: SchemaFuncImpl) {
-
+        super()
     }
 
-    async topN(n: number, schemaPayload: any): Promise<any> {
-        let task: any[] = []
 
-        while (n > 0) {
+    getData(data: { payload: any; key: string }) {
 
-            task.push(
-                this.__getData__(schemaPayload)
-            )
-            n--
-        }
-
-        const results = await Promise.all(task)
-
-        return results
-    }
-
-    private getLib() {
-        return this.schema.getLib()
-    }
-
-    private __fake_data__(payload: any, key: string) {
+        const { payload, key } = data
         const lib: any = this.getLib()
         const isFunc = this.schema.properties.valueIsFunc
 
@@ -60,61 +44,26 @@ export class FakerGeneratorService implements IGenerator {
         return ''
     }
 
-    private __populate__(payload: any, key?: string) {
-        const lib: any = this.getLib()
+    async topN(n: number, schemaPayload: any): Promise<any> {
+        let task: any[] = []
 
-        let objResult: any = {}
-        const isFunc = this.schema.properties.valueIsFunc
+        while (n > 0) {
 
-        console.log({ payloadFunc: payload, currentKey: key, isFunc })
+            task.push(
+                this.__getData__(schemaPayload)
+            )
+            n--
+        }
 
-        Object.keys(payload).forEach((v: any) => {
-            const {
-                category, properties, isCamelCase, keyName,
-                returns
-            } = payload[key]
+        const results = await Promise.all(task)
 
-            const randomResult = keyName ? lib[category][keyName] : lib[category][v]
-            //  console.log({ randomResult})
-
-            if (isFunc) {
-                if (properties) {
-                    objResult[v] = randomResult(properties)
-                }
-                else {
-                    objResult[v] = randomResult()
-                }
-            }
-
-            if (!isFunc) {
-                if (properties) {
-                    objResult[v] = randomResult[properties]
-                }
-                else {
-                    objResult[v] = randomResult
-                }
-            }
-
-            if (returns) {
-                if (objResult[v]) {
-                    let abjR: any = {}
-                    Object.keys(returns).forEach((fk: string) => {
-                        const currentFk = returns[fk]
-                        abjR[fk] = {}
-                        Object.keys(currentFk).forEach((ij) => {
-                            if (currentFk[ij] && objResult[v][ij]) {
-                                abjR[fk][ij] = objResult[v][ij]
-                            }
-                        })
-
-                    })
-                }
-            }
-        })
-
-        return objResult
-
+        return results
     }
+
+    private getLib() {
+        return this.schema.getLib()
+    }
+
 
     private __getData__(payload: any, objResult?: any, objToDelete?: any) {
         console.log({ incomingPayload: payload })
@@ -125,7 +74,7 @@ export class FakerGeneratorService implements IGenerator {
         Object.keys(payload).forEach((v) => {
             console.log({ vvv: payload[v] })
             // const typeOf = typeof payload[v]
-            objToDelete[v] =  payload[v]
+            objToDelete[v] = payload[v]
 
             if (payload[v]?.is_object) {
                 console.log({ objValue: payload[v]['attributes'], beforeObjResult: objResult })
@@ -138,7 +87,10 @@ export class FakerGeneratorService implements IGenerator {
 
             }
             else {
-                const populateResult = this.__fake_data__(payload, v)
+                const populateResult = this.getData({
+                    payload,
+                    key: v
+                })
                 console.log({ populateResult })
                 objResult[v] = populateResult
             }
