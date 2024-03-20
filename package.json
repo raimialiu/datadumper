@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run build && node src/test.js",
+    "test:dev": "npx ts-node test.ts",
     "build": "tsc --build",
     "build:dev": "npm run build && node src/Program.js",
     "start:dev": "npx ts-node Program.ts"

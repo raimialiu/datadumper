@@ -3,9 +3,9 @@ import { BaseGeneratorService } from "../generator.base.service"
 import { SchemaFuncImpl } from "../generator.service"
 import { IGenerator } from "./interface/generator.interface"
 
-export class FakerGeneratorService extends BaseGeneratorService implements IGenerator {
+export class FakerGeneratorService implements IGenerator {
     constructor(private schema: SchemaFuncImpl) {
-        super()
+       // super()
     }
 
 

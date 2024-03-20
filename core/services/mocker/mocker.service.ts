@@ -43,6 +43,20 @@ export class MockerService {
 
     }
 
+
+    private jsonData() {
+
+    }
+
+
+    private csvData() {
+
+    }
+
+    private sqlData() {
+
+    }
+
     private async downloadData(data: {
         payload: any,
         fileName?: string,
@@ -59,7 +73,7 @@ export class MockerService {
             flush: true, flag: 'w+'
         })
 
-        
+
         const fileFd = await readFile(resolve(fileName)) //createReadStream(resolve(fileName))
         // await readFile(resolve(fileName))
         console.log({ fileFd })
