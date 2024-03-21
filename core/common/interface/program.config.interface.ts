@@ -7,6 +7,7 @@ export interface ProgramConfig {
     APP_NAME: string
     PORT: number
     HOST_ADDRESS?: string
+    MONGO_CONFIG?: MongoConfig
     DB_CONFIG: DBConfigOptions
     REDIS: RedisConfig
     PROVIDER: MockDataProviderConfig,
@@ -14,6 +15,10 @@ export interface ProgramConfig {
     AUTHENTICATION_PROVIDER: AUTHENTICATION_PROVIDER
     LOGGER?: LoggerConfig
     Component?: ComponentConfig
+}
+
+export interface MongoConfig {
+    MONGO_URL?: string
 }
 
 export interface DBConfigOptions {

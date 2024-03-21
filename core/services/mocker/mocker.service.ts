@@ -8,7 +8,7 @@ const { resolve } = require('node:path');
 export class MockerService {
 
     constructor(private app: FastifyInstance) {
-        this.genSvc = new GeneratorService((app as any)['providerConfig'])
+        this.genSvc = new GeneratorService((this.app as any)['providerConfig'])
     }
 
     private genSvc: GeneratorService
@@ -43,19 +43,6 @@ export class MockerService {
 
     }
 
-
-    private jsonData() {
-
-    }
-
-
-    private csvData() {
-
-    }
-
-    private sqlData() {
-
-    }
 
     private async downloadData(data: {
         payload: any,

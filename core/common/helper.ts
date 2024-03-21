@@ -2,6 +2,7 @@ import { IRouteBuilder, RouteBuilder } from "../RouteBuilder";
 import { FastifyInstance } from "fastify";
 import { SchemaController } from "../controller/schema/schema.controller";
 import { MockerService } from "../services/mocker/mocker.service";
+import { randomUUID } from "crypto";
 
 export function BuildeRoutes(builder: FastifyInstance): IRouteBuilder {
     const routeBuilder = new RouteBuilder(builder)
@@ -45,6 +46,12 @@ export function decorate<T>(builder: FastifyInstance, key: string, value: T, opt
         console.log(`${key} registration completed`)
     })
 
+}
+
+export function getNewSchemaId(userId: string) {
+    const timestamp = Date.now()
+
+    return `${userId.slice(5).replace(/-/g, '')}-${timestamp}-${randomUUID()}`
 }
 
 export function deleteFromObj(object: any, mutatotrs: any) {

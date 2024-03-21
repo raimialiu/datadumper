@@ -1,5 +1,7 @@
 import { IServiceCollection } from './core/IServiceCollection';
 import { IStartup } from "./core/IStartup";
+import { FAKER_PROVIDER } from './core/common/enum';
+import { FakerProvider } from './core/common/enums/faker-provider.enum';
 import { BuildeRoutes } from "./core/common/helper";
 import { ProgramConfig } from './core/common/interface/program.config.interface';
 
@@ -21,9 +23,11 @@ export class Startup implements IStartup {
         //AddRoutes(BuildeRoutes(services.currentApp))
         services
             .AddRedis(config?.REDIS)
+            .AddMongo(config?.MONGO_CONFIG)
             .AddDatabase()
             .AddJwtAuthentication()
-            .AddFakerServiceProvider('../config.json', process.env.CURRENT_PROVIDER || 'faker')
+            .AddFakerServiceProvider('../config.json', process.env.CURRENT_PROVIDER || FAKER_PROVIDER.FAKER)
+
 
         this._svc = services
     }

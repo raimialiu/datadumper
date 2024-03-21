@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify"
 import { IRouteBuilder } from "./RouteBuilder"
-import { DBConfigOptions, RedisConfig } from "./common/interface/program.config.interface"
+import { DBConfigOptions, MongoConfig, RedisConfig } from "./common/interface/program.config.interface"
 
 
 export interface IServiceCollection {
@@ -13,6 +13,7 @@ export interface IServiceCollection {
     AddServiceConfigration<T>(config?:T): IServiceCollection
     AddRoutes(routeBuilder: IRouteBuilder): IServiceCollection
     AddFakerServiceProvider(configFilePath: string, currentProvider?: string): IServiceCollection
+    AddMongo(config?: MongoConfig): IServiceCollection
 
     get currentApp(): FastifyInstance
 

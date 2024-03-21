@@ -2,12 +2,14 @@ import { IServiceCollection } from "./IServiceCollection";
 import { ErrorMessages, Panic } from "./common/constant";
 import { IRouteBuilder } from "./RouteBuilder";
 import { IHostBuilder } from "./IHostBuilder";
-import { DBConfigOptions, ProgramConfig, RedisConfig } from "./common/interface/program.config.interface";
+import { DBConfigOptions, MongoConfig, ProgramConfig, RedisConfig } from "./common/interface/program.config.interface";
 import { RedisService } from "./services/redis/redis.service";
 import { DatabaseService } from "./services/database/database.service";
 import { decorate } from "./common/helper";
 import { join } from "path";
 import { readFileSync } from "fs";
+import { FakerProvider } from "./common/enums/faker-provider.enum";
+import { MongoDbService } from "./services/database/mongo.service";
 
 export class ServiceCollectionImplementation implements IServiceCollection {
 
@@ -27,9 +29,9 @@ export class ServiceCollectionImplementation implements IServiceCollection {
         const fileContent = Buffer.from(readFileSync(configPath)).toString()
         const fileJsonParse = JSON.parse(fileContent)
 
-        console.log({ fileJsonParse })
+        //console.log({ fileJsonParse })
 
-        const providerConfig = fileJsonParse[currentProvider]
+        const providerConfig = fileJsonParse[currentProvider || FakerProvider.FAKER]
         console.log({ providerConfig })
 
         if (providerConfig) {
@@ -63,6 +65,18 @@ export class ServiceCollectionImplementation implements IServiceCollection {
 
         return this;
     }
+
+
+    AddMongo(config?: MongoConfig): IServiceCollection {
+        config = config || ((this.hostBuilder.currentApp as any)['programConfig'] as ProgramConfig)?.MONGO_CONFIG
+        console.log({ mongoConfig: config })
+
+        decorate<MongoDbService>(this.hostBuilder.currentApp, 'mongo',  new MongoDbService(config))
+        // this.hostBuilder.currentApp.decorate('redis', new RedisService(config))
+
+        return this;
+    }
+
 
     AddSwaggerGen(): IServiceCollection {
         throw new Error("Method not implemented.");

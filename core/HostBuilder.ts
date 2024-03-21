@@ -123,8 +123,10 @@ export class HostBuilder implements IHostBuilder {
             CLOUDWATCH_CONFIG,
             AUTHENTICATION_PROVIDER,
             AUTHENTICATION_SCHEMS,
+            MONGO_CONFIG,
             LOG_CHANNELS, Swagger, CQRS, JWT, FILEPATH, PROVIDER,
-            DB_HOST, DB_PASS, DB_PORT, CONNECTION_TIMEOUT, DB_NAME, DB_SYNC } = configOptions
+            DB_HOST, DB_PASS, DB_PORT,
+            CONNECTION_TIMEOUT, DB_NAME } = configOptions
 
         const config: ProgramConfig = {
             ENV_FILE_PATH: envFilePath,
@@ -133,6 +135,7 @@ export class HostBuilder implements IHostBuilder {
             PORT,
             AUTHENTICATION_PROVIDER,
             AUTHENTICATION_SCHEMS,
+            MONGO_CONFIG,
             HOST_ADDRESS,
             PROVIDER: {
                 CURRENT,
@@ -147,7 +150,7 @@ export class HostBuilder implements IHostBuilder {
                 DB_HOST, DB_PASS, DB_URL, DB_USER,
                 DB_PORT,
                 DIALECT,
-                DB_NAME, DB_SYNC: process.env.NODE_ENV =='development' ? true: false
+                DB_NAME, DB_SYNC: process.env.NODE_ENV == 'development' ? true : false
             },
             REDIS: {
                 RD_HOST, RD_USER, RD_PASS, RD_POR

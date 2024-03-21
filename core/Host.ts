@@ -49,6 +49,10 @@ export class Host implements IHost {
             db: {
                 key: 'db',
                 value: app['db']
+            },
+            mongo: {
+                key: 'mongo',
+                value: app['mongo']
             }
         })
 
