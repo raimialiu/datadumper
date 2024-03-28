@@ -1,5 +1,6 @@
 import { Schema, model, connect, Model } from 'mongoose';
 import { MongoConfig } from '../../common/interface/program.config.interface';
+import { MongoSchemaKeys } from '../../models/mongo/schema-value.mongo.model';
 
 export class MongoDbService {
     /**
@@ -30,6 +31,41 @@ export class MongoDbService {
         const modelInstance = new dbModel(data, options)
 
         return save ? modelInstance.save() : modelInstance
+    }
+
+    async findObject<T>(payload: {
+        schema: Schema,
+        tableName: string,
+        findOptions?: any
+    }): Promise<T[]> {
+
+        const { schema: modelSchema, tableName, findOptions } = payload
+
+        const dbModel = model<T>(tableName, modelSchema)
+
+        const find = await dbModel.find(findOptions || {}).exec()
+
+        return find
+
+    }
+
+
+    async findOne<T>(payload: {
+        schemaDefinition: any,
+        tableName: string,
+        findOptions?: any
+    }): Promise<T> {
+
+        const { schemaDefinition, tableName, findOptions } = payload
+
+        const modelSchema = new Schema(schemaDefinition)
+
+        const dbModel = model<T>(tableName, modelSchema)
+
+        const find = await dbModel.find(findOptions || {}).exec()
+
+        return find && find.length > 0 ? find[0] : null
+
     }
 
 }

@@ -10,7 +10,6 @@ import { ErrorMessages, Panic } from "./common/constant";
 import { ServiceCollectionImplementation } from "./ServiceCollectionImpl";
 import { Host } from "./Host";
 import { IncomingMessage, ServerResponse } from "http";
-import { decorate } from "./common/helper";
 
 export class HostBuilder implements IHostBuilder {
 
@@ -123,10 +122,9 @@ export class HostBuilder implements IHostBuilder {
             CLOUDWATCH_CONFIG,
             AUTHENTICATION_PROVIDER,
             AUTHENTICATION_SCHEMS,
-            MONGO_CONFIG,
             LOG_CHANNELS, Swagger, CQRS, JWT, FILEPATH, PROVIDER,
             DB_HOST, DB_PASS, DB_PORT,
-            CONNECTION_TIMEOUT, DB_NAME } = configOptions
+            CONNECTION_TIMEOUT, DB_NAME, MONGO_URL } = configOptions
 
         const config: ProgramConfig = {
             ENV_FILE_PATH: envFilePath,
@@ -135,7 +133,9 @@ export class HostBuilder implements IHostBuilder {
             PORT,
             AUTHENTICATION_PROVIDER,
             AUTHENTICATION_SCHEMS,
-            MONGO_CONFIG,
+            MONGO_CONFIG: {
+                MONGO_URL
+            },
             HOST_ADDRESS,
             PROVIDER: {
                 CURRENT,

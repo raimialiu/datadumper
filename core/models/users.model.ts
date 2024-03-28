@@ -35,6 +35,7 @@ export class UsersModel {
     @Column({ length: 100 })
     email_address: string
 
+    @Column({ length: 100 })
     password: string
 
     @Column({ nullable: true })
@@ -54,7 +55,7 @@ export class UsersModel {
 
     @Column({ default: true })
     is_active: boolean
-    
+
 
     @OneToMany((type) => SchemaModel, (l) => l.user, { cascade: false })
     schemas: SchemaModel[]

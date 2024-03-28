@@ -1,4 +1,5 @@
 import { FastifyReply } from "fastify"
+import Joi, { PartialSchemaMap } from "joi"
 
 export class BaseController {
 
@@ -22,6 +23,19 @@ export class BaseController {
             }
         )
 
+    }
+
+    protected defineValidationSchema<T>(schemaPayload: PartialSchemaMap<T>): Joi.ObjectSchema<T> {
+        return Joi.object(schemaPayload)
+    }
+
+    protected validateObject<T>(schema: Joi.ObjectSchema<T>, payload: unknown) {
+        const { error, value } = schema.validate(payload, { "abortEarly": true })
+
+        return {
+            error,
+            value
+        }
     }
 
     protected handleError(resp: FastifyReply, error: Error) {

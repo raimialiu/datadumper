@@ -1,10 +1,7 @@
 import { FastifyInstance } from "fastify"
 import { DefaultConfig } from "./core/common/interface/program.config.interface"
 import { envSchema } from 'env-schema'
-import { decorate } from "./core/common/helper"
 import { AUTHENTICATION_PROVIDER, AUTHENTICATION_SCHEMES, FAKER_PROVIDER, LOG_PROVIDER } from "./core/common/enum"
-
-const fastifyEnv = require('@fastify/env')
 export class EnvLoader {
 
   static Load(fastInstance: any, filePath?: string) {
@@ -114,6 +111,11 @@ export class EnvLoader {
         CONNECTION_TIMEOUT: {
           type: 'integer',
           default: 5000
+        },
+        MONGO_URL: {
+          type: 'string',
+          required: true,
+          require: true
         }
 
       }

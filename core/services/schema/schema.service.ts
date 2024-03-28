@@ -2,12 +2,13 @@ import { FastifyInstance } from "fastify";
 import { MockerService } from "../mocker/mocker.service";
 import { MongoDbService } from "../database/mongo.service";
 import { DatabaseService } from "../database/database.service";
-import { SchemaValueModel } from "../../models/mongo/schema-value.mongo.model";
+import { MockDataSchemaValueModel, TableNames, mockDataSchemaDefinition } from "../../models/mongo/schema-value.mongo.model";
 import { getNewSchemaId } from "../../common/helper";
 import { SchemaRepository } from "../database/repository/schema.repository.service";
 import { UsersModel } from "../../models/users.model";
 import { SchemaModel } from "../../models/schema.model";
 import { Schema } from "mongoose";
+import { Panic } from "../../common/constant";
 
 export class SchemaService {
 
@@ -22,6 +23,56 @@ export class SchemaService {
         limit: number
     }) {
 
+        const { user_id, limit, page_index } = payload
+
+        const schema = await this.schemaRepo.GetMany<SchemaModel>({
+            user_id
+        }, {
+            limit, page_index,
+            sortOrder: "DESC",
+            orderBy: {
+                created_at: "DESC"
+            }
+        })
+
+        return schema
+
+    }
+
+    async createSchemaQuickly(payload: {
+        n: number,
+        schemas: any,
+        pagination?: any
+    }) {
+
+        const schemaResult = await this.svc.getMockData(payload)
+
+        return schemaResult
+
+    }
+
+    async downloadSchema(payload: any) {
+        const downloadResult = await this.svc.downloadMockData(payload)
+
+        return downloadResult
+    }
+
+    async getSchemaData(schemaId: string) {
+        const findSchema = await this.mongoDb.findOne<MockDataSchemaValueModel>(
+            {
+                schemaDefinition: mockDataSchemaDefinition,
+                tableName: TableNames.MockDataTableName,
+                findOptions: {
+                    schema_id: schemaId
+                }
+            }
+        )
+
+        if (!findSchema) {
+            Panic(`no match found for the specified schema.....`)
+        }
+
+        return findSchema.schema_values
     }
 
     async createSchema(payload: {
@@ -55,12 +106,9 @@ export class SchemaService {
 
         console.log({ saveSchemaResult })
 
-        const saveResult = await this.mongoDb.createSchema<SchemaValueModel<any>>({
-            tableName: 'schema_values',
-            schemaDefinition: {
-                schema_id: { type: String, required: true },
-                schema_values: { type: Object, required: true }
-            },
+        const saveResult = await this.mongoDb.createSchema<MockDataSchemaValueModel>({
+            tableName: TableNames.MockDataTableName,
+            schemaDefinition: mockDataSchemaDefinition,
             data: {
                 schema_values: schemaValue,
                 schema_id: saveSchemaResult.id

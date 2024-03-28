@@ -1,8 +1,9 @@
-import { DeepPartial, FindOptionsWhere } from "typeorm";
-import { Repository } from "./interface/repository.interface";
+import { DeepPartial, FindOptionsOrder, FindOptionsOrderValue, FindOptionsWhere } from "typeorm";
+import { Repository, keytype } from "./interface/repository.interface";
 import { DatabaseService } from "../database.service";
 import { SchemaModel } from "../../../models/schema.model";
 import { MongoDbService } from "../mongo.service";
+import { KeysOf } from "fastify/types/type-provider";
 
 export class SchemaRepository implements Repository {
     constructor(private db: DatabaseService, private mongo: MongoDbService) {
@@ -30,7 +31,7 @@ export class SchemaRepository implements Repository {
     async GetMany<SchemaModel>(condition: FindOptionsWhere<SchemaModel>,
         options: {
             limit: number; page_index:
-            number; orderBy?: any; sortOrder: "DESC" | "ASC";
+            number; orderBy?: FindOptionsOrder<SchemaModel>; sortOrder: FindOptionsOrderValue;
             relations?: any;
         }): Promise<SchemaModel[]> {
         let {

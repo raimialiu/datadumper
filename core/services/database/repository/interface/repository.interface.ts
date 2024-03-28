@@ -1,4 +1,6 @@
-import { DeepPartial, EntityTarget, FindOptionsWhere } from "typeorm"
+import { DeepPartial, EntityTarget, FindOptionsOrder, FindOptionsOrderValue, FindOptionsWhere } from "typeorm"
+
+export type keytype<T> = keyof T
 
 export interface Repository {
     SaveOne<T>(Payload: DeepPartial<T>): Promise<T>
@@ -7,8 +9,8 @@ export interface Repository {
     GetMany<T>(condition: FindOptionsWhere<T>, options: {
         limit: number,
         page_index: number,
-        orderBy?: any
-        sortOrder: 'DESC' | 'ASC',
+        orderBy?: FindOptionsOrder<T>
+        sortOrder: FindOptionsOrderValue,
         relations?: any
     }): Promise<T[]>
 

@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: mongo-deployment
+ namespace: dev
+ labels:
+   name: mongo-deployment
+spec:
+ replicas: 1
+ selector:
+  matchLabels:
+    name: mongo
+    tier: backend
+    purpose: db
+    database: "1"
+    role: keyvaluestore
+ template:
+  metadata:
+    name: mongo
+    labels:
+      name: mongo
+      tier: backend
+      purpose: db
+      database: "1"
+      role: keyvaluestore
+  spec:
+   containers:
+    - image: mongo
+      name: mongo
+      ports:
+       - containerPort: 27017
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "250m"
+        limits:
+          memory: "128Mi"
+          cpu: "500m"
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-svc
+  namespace: dev
+  labels:
+    tier: backend
+    name: mongo-svc
+    purpose: service
+spec:
+  type : ClusterIP
+  ports:
+    - name: redis
+      port: 27017
+      targetPort: 27017
+  selector:
+    name: mongo
+    tier: backend
+    purpose: db
+    database: "1"
+    role: keyvaluestore
+  

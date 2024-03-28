@@ -30,8 +30,28 @@ export class UserRepositoryService implements Repository {
         return findOne as UsersModel
     }
 
-    GetMany<T>(condition: FindOptionsWhere<T>, options: { limit: number; page_index: number; orderBy?: any; sortOrder: "DESC" | "ASC"; relations?: any; }): Promise<T[]> {
-        throw new Error("Method not implemented.");
+    async GetMany<UsersModel>(condition: FindOptionsWhere<UsersModel>,
+        options: { limit: number; page_index: number; orderBy?: any; sortOrder: "DESC" | "ASC"; relations?: any; }): Promise<UsersModel[]> {
+
+        let {
+            limit, page_index, orderBy, sortOrder, relations
+        } = options
+
+        page_index = page_index || 1
+        limit = limit || 10
+        const skip = (page_index - 1) * limit
+        const findMany = await this.db.findMany(UsersModel, {
+            where: condition,
+            skip,
+            take: limit,
+            order: orderBy || {
+                created_at: sortOrder || 'DESC'
+            },
+            relations
+        })
+
+        return findMany as UsersModel[]
+
     }
 
 }
